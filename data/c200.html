@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://vjs.zencdn.net/8.3.0/video-js.min.css" rel="stylesheet" />
+    <title>Tapo C200</title>
+</head>
+
+<body>
+    <video-js id="live-cam2" class="vjs-default-skin" controls muted autoplay
+            width="640" height="352" data-setup="{}">
+        <source src="hls/c200.m3u8" type="application/x-mpegURL" />
+        <p class="vjs-no-js">
+            この動画を見るためには JavaScript を有効にし、
+            HTML5 の video タグをサポートするブラウザを使って下さい。
+        </p>
+    </video-js>
+    <script src="https://vjs.zencdn.net/8.3.0/video.min.js"></script>
+    <script>
+        var player = videojs('live-cam2');
+    </script>
+</body>
