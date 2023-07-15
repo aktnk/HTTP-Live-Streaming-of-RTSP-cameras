@@ -9,7 +9,8 @@ RUN apt-get update && \
     ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
     dpkg-reconfigure tzdata
 
-RUN mkdir /data
+RUN mkdir -p /data && \
+    chown -R www-data:www-data /data 
 COPY etc/nginx/conf/nginx.conf /etc/nginx/nginx.conf
 #COPY www/*.html /data/
 
