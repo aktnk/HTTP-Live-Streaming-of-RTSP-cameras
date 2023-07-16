@@ -48,11 +48,13 @@ $ docker compose stop
 ```
 ## Explanation of Recording Functions
 
-* Pressing the Start Recording button starts recording.
+* Pressing the Start Recording button starts recording.  
+   ![Recoding Start Button](https://user-images.githubusercontent.com/13390370/253792768-3fe201c1-77b5-44fe-b5a4-0dcd5ec851d2.png)
 * Once recording has started, recording cannot begin until recording is stopped.
-* Pressing the Stop Recording button stops recording. Note that recording cannot be stopped if it has not been started.
+* Pressing the Stop Recording button stops recording. Note that recording cannot be stopped if it has not been started.  
+   ![Recording Stop Button](https://user-images.githubusercontent.com/13390370/253792772-3fbf0b5c-429e-43d3-b780-f1147de38c50.png)
 * Recording will automatically stop 30 seconds after it starts. When the browser's back button is pressed, recording will stop if recording is in progress.
-* Recording files are saved in flv format under data/hls.
+* Recording files are saved in flv format under `data/hls` directory.
 
 ## Reference
 
