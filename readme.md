@@ -46,6 +46,13 @@ Access `http://localhost/index2.html` with a browser.
 ```
 $ docker compose stop
 ```
+## Explanation of Recording Functions
+
+* Pressing the Start Recording button starts recording.
+* Once recording has started, recording cannot begin until recording is stopped.
+* Pressing the Stop Recording button stops recording. Note that recording cannot be stopped if it has not been started.
+* Recording will automatically stop 30 seconds after it starts. When the browser's back button is pressed, recording will stop if recording is in progress.
+* Recording files are saved in flv format under data/hls.
 
 ## Reference
 
