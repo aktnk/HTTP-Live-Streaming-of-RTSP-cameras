@@ -40,6 +40,9 @@ $ docker compose up -d --build
 
 Access `http://localhost/index2.html` with a browser.
 
+### Viewing recorded vidoes
+
+Access `http://localhost/index.php` with a browser.
 
 ### Terminate HTTP Live Streaming.
 
