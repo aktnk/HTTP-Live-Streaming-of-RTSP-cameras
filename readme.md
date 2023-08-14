@@ -55,7 +55,7 @@ $ docker compose stop
    ![Recoding Start Button](https://user-images.githubusercontent.com/13390370/253792768-3fe201c1-77b5-44fe-b5a4-0dcd5ec851d2.png)
 * Once recording has started, recording cannot begin until recording is stopped.
 * Pressing the Stop Recording button stops recording. Note that recording cannot be stopped if it has not been started.  
-   ![Recording Stop Button](https://user-images.githubusercontent.com/13390370/253792772-3fbf0b5c-429e-43d3-b780-f1147de38c50.png)
+   ![Recording Stop Button](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/36e11d3e-056c-4bc4-8b7b-f903ec6473fe)
 * Recording will automatically stop 30 seconds after it starts. When the browser's back button is pressed, recording will stop if recording is in progress.
 * Recording files are saved in flv format under `data/hls` directory.
 
