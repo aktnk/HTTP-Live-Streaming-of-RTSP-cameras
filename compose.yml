@@ -43,7 +43,7 @@ services:
       - 80:80
     tty: true
     volumes:
-      - ./data:/data
+      - ./data:/usr/share/nginx/html
       - ./log/nginx_rtmp/:/var/log/nginx/
     healthcheck:
       test: "(curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c110.m3u8 && curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c200.m3u8) || exit 1 "
@@ -53,4 +53,10 @@ services:
       start_period: 15s
     restart: always
 
+  php_fpm:
+    container_name: php_fpm
+    build: ./php_fpm
+    restart: always
+    volumes:
+      - ./data:/usr/share/nginx/html
   
