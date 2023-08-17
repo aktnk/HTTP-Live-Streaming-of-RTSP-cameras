@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
+    <?php
+    if(isset($_GET['delete']) && $_GET['delete']=='true') {
+        $mp4 = $_POST['fileToDelete'];
+        $flv = str_replace('mp4','flv',$mp4);
+        unlink($mp4);
+        unlink($flv);
+    }
+    ?>
     <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #ccc;">
         <div class="container-fluid">
             <a href="index.html" class="navbar-brand"><i class="bi bi-camera-reels me-1"></i>HomeCameras</a>
@@ -35,6 +43,12 @@
                     <video controls playsinline muted preload="metadata" width="360">
                         <source src="<?php echo $file; ?>">
                     </video>
+                    <div class="col-lg-6 offset-sm-3">
+                        <?php echo "<form method=\"post\" name=\"del_".$file."\" action=\""?><?php echo $_SERVER['PHP_SELF'].'?delete=true';?><?php echo"\" >
+                            <input type=\"hidden\" name=\"fileToDelete\" value=\"".$file."\" >
+                            <button type=\"submit\" value=\"Delete\" class=\"btn btn-danger mb-3\"><i class=\"bi bi-trash3 me-1 \"></i>ファイル削除</button>
+                        </form>"; ?>
+                    </div>
                 </div>
                 <?php endforeach; ?>
             </div>
