@@ -123,7 +123,8 @@
                                     this.requestRecStop();
                                 }, this.autoStopTime);
                             }else if (response.status == '204') {
-                                alert("現在録画中のため、開始できません")
+                                alert("現在録画中のため、開始できません");
+                                this.isRecording=true;
                             }else{
                                 console.log('recording start failed.')
                             }
@@ -147,6 +148,7 @@
                                 this.isRecording=false;
                             }else if (response.status == '204') {
                                 alert("現在録画していないため、停止できません");
+                                this.isRecording=false;
                             }else{
                                 console.log('recording stop failed.');
                             }
@@ -195,6 +197,7 @@
                                 }, this.autoStopTime);
                             }else if (response.status == '204') {
                                 alert("現在録画中のため、開始できません");
+                                this.isRecording=true;
                             }else{
                                 console.log('recording start failed.');
                             }
@@ -218,6 +221,7 @@
                                 this.isRecording=false;
                             }else if (response.status == '204') {
                                 alert("現在録画していないため、停止できません");
+                                this.isRecording=false;
                             }else{
                                 console.log('recording stop failed.');
                             }
