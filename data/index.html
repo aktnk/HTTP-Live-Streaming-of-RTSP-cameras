@@ -10,6 +10,7 @@
     <link type="text/css" href="https://www.unpkg.com/bootstrap-vue@2.23.1/dist/bootstrap-vue-icons.min.css" rel="stylesheet" />
     <script src="https://unpkg.com/vue@2.7.14/dist/vue.min.js"></script>
     <script src="https://unpkg.com/axios@1.4.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-spinner@1.0.4/dist/vue-spinner.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #ccc;">
@@ -30,7 +31,7 @@
         <div class="container">
             <div class="container">
                 <h3><i class="bi bi-camera-reels me-1"></i>Live Camera Streaming</h3>
-                <p>ネットワークに接続したカメラの映像をライブ配信しています。録画ボタンを押すことで最大30秒間の映像を保存できます。</p>
+                <p>ネットワークに接続したカメラの映像をライブ配信しています。録画ボタンを押すことで最大30秒間もしくは録画ファイルサイズが3MBまでの映像を保存できます。</p>
             </div>
             <div class="row gy-2">
                 <div class="col-lg-6">
@@ -41,14 +42,20 @@
                             HTML5 の video タグをサポートするブラウザを使って下さい。
                         </p>
                     </video-js>
-                    <div class="row text-center" id="app">
-                        <div class="col-lg-4 offset-lg-4 gy-2">
-                            <button v-show="!isRecording" v-on:click="requestRecStart" type="button" class="btn btn-outline-primary mb-2">
-                                <i class="bi bi-record-circle me-1"></i>録画 Start
-                            </button>
-                            <button v-show="isRecording" v-on:click="requestRecStop" type="button" class="btn btn-outline-danger mb-2">
-                                <i class="bi bi-stop-circle me-1"></i>録画 Stop
-                            </button>
+                    <div id="app">
+                        <div class="row justify-content-md-center text-center">
+                            <div class="col-sm-auto gy-2">
+                                <button v-show="!isRecording" v-on:click="requestRecStart" type="button" class="btn btn-outline-primary mb-2">
+                                    <i class="bi bi-record-fill me-1" style="color: red;"></i>録画 Start
+                                </button>
+                                <div class="justify-content-center" v-show="isRecording">
+                                    <div class="spinner-grow spinner-grow-sm text-danger" role="status"></div>
+                                    <span class="text-dark gy-4 me-2">録画中です...</span>
+                                    <button v-on:click="requestRecStop" type="button" class="col btn btn-outline-primary mb-2">
+                                        <i class="bi bi-stop-circle-fill me-1" style="color: red;"></i>録画 <span style="color: red;">Stop</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -60,14 +67,20 @@
                             HTML5 の video タグをサポートするブラウザを使って下さい。
                         </p>
                     </video-js>
-                    <div class="row text-center" id="app2">
-                        <div class="col-lg-4 offset-lg-4 gy-2">
-                            <button v-show="!isRecording" v-on:click="requestRecStart" type="button" class="btn btn-outline-primary mb-2">
-                                <i class="bi bi-record-circle me-1"></i>録画 Start
-                            </button>
-                            <button v-show="isRecording" v-on:click="requestRecStop" type="button" class="btn btn-outline-danger mb-2">
-                                <i class="bi bi-stop-circle me-1"></i>録画 Stop
-                            </button>
+                    <div id="app2">
+                        <div class="row justify-content-md-center text-center">
+                            <div class="col-sm-auto gy-2">
+                                <button v-show="!isRecording" v-on:click="requestRecStart" type="button" class="btn btn-outline-primary mb-2">
+                                    <i class="bi bi-record-fill me-1" style="color: red;"></i>録画 Start
+                                </button>
+                                <div class="justify-content-center" v-show="isRecording">
+                                    <div class="spinner-grow spinner-grow-sm text-danger" role="status"></div>
+                                    <span class="text-dark gy-4 me-2">録画中です...</span>
+                                    <button v-show="isRecording" v-on:click="requestRecStop" type="button" class="btn btn-outline-primary mb-2">
+                                        <i class="bi bi-stop-circle-fill me-1" style="color: red;"></i>録画 <span style="color: red;">Stop</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -84,7 +97,14 @@
     <script>
         var player = videojs('live-cam');
         var player2 = videojs('live-cam2');
-    </script>
+        window.addEventListener('beforeunload', (event) => {
+            // https://developer.mozilla.org/ja/docs/Web/API/Window/beforeunload_event
+            // Cancel the event as stated by the standard.
+            event.preventDefault();
+            // Chrome requires returnValue to be set.
+            event.returnValue = '';
+        });
+</script>
     <script>
         let app = new Vue({
             el: '#app',
@@ -93,24 +113,15 @@
                     filename: "",
                     isRecording: false,
                     autoStopTime: 30000,
+                    timeoutId: null,
                 }
-            },
-            mounted () {
-                window.addEventListener('beforeunload', () => {
-                    this.requestRecStop()
-                })
-            },
-            destroyed () {
-                window.removeEventListener('beforeunload', () => {
-                    this.requestRecStop()
-                })
             },
             methods: {
                 requestRecStart(){
                     if (this.isRecording) {
-                        console.log('now recording!')
+                        console.log('now recording c110!')
                     } else {
-                        console.log('request start recording')
+                        console.log('request start recording c110')
                         axios
                         .get("control/record/start?app=livecam&name=c110&rec=rec1")
                         .then(response => {
@@ -119,25 +130,30 @@
                             if (response.status == '200') {
                                 this.filename=response.data;
                                 this.isRecording=true;
-                                setTimeout(()=>{
+                                this.timeoutId = setTimeout(()=>{
                                     this.requestRecStop();
                                 }, this.autoStopTime);
+                                console.log('c110 set timeout s:200')
                             }else if (response.status == '204') {
-                                alert("現在録画中のため、開始できません");
+                                alert("C110カメラは現在録画中です");
                                 this.isRecording=true;
+                                this.timeoutId = setTimeout(()=>{
+                                    this.requestRecStop();
+                                }, this.autoStopTime);
+                                console.log('c110 set timeout s:204')
                             }else{
-                                console.log('recording start failed.')
+                                console.log('c110 recording start failed.')
                             }
                         }).catch(err => {
-                            console.log('error occured:', err);
+                            console.log('c110 requestRecStart() error occured:', err);
                         });
                     }
                 },
                 requestRecStop(){
                     if (!this.isRecording) {
-                        console.log('now not recording!!')
+                        console.log('now not recording c110 !!')
                     } else {
-                        console.log('request stop recording')
+                        console.log('request stop recording c110')
                         axios
                         .get("control/record/stop?app=livecam&name=c110&rec=rec1")
                         .then(response => {
@@ -146,14 +162,20 @@
                             if (response.status == '200') {
                                 this.filename='';
                                 this.isRecording=false;
+                                clearTimeout(this.timeoutId);
+                                this.timeoutId = null;
+                                console.log('c110 clear timeout s:200')
                             }else if (response.status == '204') {
-                                alert("現在録画していないため、停止できません");
+                                alert("許容時間もしくは許容サイズを超えたため、C110カメラの録画を既に停止しました");
                                 this.isRecording=false;
+                                clearTimeout(this.timeoutId);
+                                this.timeoutId = null;
+                                console.log('c110 clear timeout s:204')
                             }else{
-                                console.log('recording stop failed.');
+                                console.log('c110 recording stop failed.');
                             }
                         }).catch(err => {
-                            console.log('error occured:', err);
+                            console.log('C110 requestRecStop() error occured:', err);
                         });
                     }
                 }
@@ -166,24 +188,15 @@
                     filename: "",
                     isRecording: false,
                     autoStopTime: 30000,
+                    timeoutId: null,
                 }
-            },
-            mounted () {
-                window.addEventListener('beforeunload', () => {
-                    this.requestRecStop()
-                })
-            },
-            destroyed () {
-                window.removeEventListener('beforeunload', () => {
-                    this.requestRecStop()
-                })
             },
             methods: {
                 requestRecStart(){
                     if (this.isRecording) {
-                        console.log('now recording!')
+                        console.log('now recording c200!')
                     } else {
-                        console.log('request start recording')
+                        console.log('request start recording c200')
                         axios
                         .get("control/record/start?app=livecam&name=c200&rec=rec1")
                         .then(response => {
@@ -192,25 +205,30 @@
                             if (response.status == '200') {
                                 this.filename=response.data;
                                 this.isRecording=true;
-                                setTimeout(()=>{
+                                this.timeoutId = setTimeout(()=>{
                                     this.requestRecStop();
                                 }, this.autoStopTime);
+                                console.log('c200 set timeout s:200')
                             }else if (response.status == '204') {
-                                alert("現在録画中のため、開始できません");
+                                alert("C200カメラは現在録画中です");
                                 this.isRecording=true;
+                                this.timeoutId = setTimeout(()=>{
+                                    this.requestRecStop();
+                                }, this.autoStopTime);
+                                console.log('c200 set timeout s:204')
                             }else{
-                                console.log('recording start failed.');
+                                console.log('c200 cording start failed.');
                             }
                         }).catch(err => {
-                            console.log('error occured:', err);
+                            console.log('c200 requestRecStart() error occured:', err);
                         });
                     }
                 },
                 requestRecStop(){
                     if (!this.isRecording) {
-                        console.log('now not recording!!')
+                        console.log('now not recording c200!!')
                     } else {
-                        console.log('request stop recording')
+                        console.log('request stop recording c200')
                         axios
                         .get("control/record/stop?app=livecam&name=c200&rec=rec1")
                         .then(response => {
@@ -219,14 +237,20 @@
                             if (response.status == '200') {
                                 this.filename='';
                                 this.isRecording=false;
+                                clearTimeout(this.timeoutId);
+                                this.timeoutId = null;
+                                console.log('c200 clear timeout s:200')
                             }else if (response.status == '204') {
-                                alert("現在録画していないため、停止できません");
+                                alert("許容時間もしくは許容サイズを超えたため、C200カメラの録画を既に停止しました");
                                 this.isRecording=false;
+                                clearTimeout(this.timeoutId);
+                                this.timeoutId = null;
+                                console.log('c200 clear timeout s:204')
                             }else{
-                                console.log('recording stop failed.');
+                                console.log('c200 recording stop failed.');
                             }
                         }).catch(err => {
-                            console.log('error occured:', err);
+                            console.log('c200 requestRecStop() error occured:', err);
                         });
                     }
                 }
