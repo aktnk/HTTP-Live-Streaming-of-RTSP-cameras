@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Cameras - HTTP Live Streaming</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/video.js@8.3.0/dist/video-js.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/vue@2.7.14/dist/vue.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #ccc;">
+        <div class="container-fluid">
+            <a href="index.html" class="navbar-brand"><i class="bi bi-camera-reels me-1"></i>HomeCameras</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a href="index.html" class="nav-link active">Live</a></li>
+                    <li class="nav-item"><a href="replay.php" class="nav-link">Replay</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main id="app">
+        <div class="container">
+            <div class="container">
+                <h3><i class="bi bi-camera-reels me-1"></i>Live Camera Streaming</h3>
+                <p>ネットワークに接続したカメラの映像をライブ配信しています。</p>
+            </div>
+            <div class="row gy-2">
+                <camera-player v-for="camera in cameras" :key="camera" :name="camera"></camera-player>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-3 mt-4 text-center" style="background-color: #ccc;">
+        <div class="container">
+            <p class="small">HTTP Live Streaming of RTSP cameras</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/video.js@8.12.0/dist/video.min.js"></script>
+    <script src="https://unpkg.com/axios@1.4.0/dist/axios.min.js"></script>
+
+    <!-- Vue.js Camera Player Component -->
+    <script type="text/x-template" id="camera-player-template">
+        <div class="col-lg-6">
+            <h4>Camera: {{ name }}</h4>
+            <video-js :id="'live-cam-' + name" class="vjs-default-skin vjs-fluid" controls muted autoplay>
+                <source :src="'/hls/' + name + '.m3u8'" type="application/x-mpegURL" />
+            </video-js>
+            <div class="row justify-content-md-center text-center">
+                <div class="col-sm-auto gy-2">
+                    <!-- Recording controls can be added here if needed -->
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        // Define the camera-player component
+        Vue.component('camera-player', {
+            template: '#camera-player-template',
+            props: ['name'],
+            mounted: function () {
+                // Initialize video.js player
+                videojs('live-cam-' + this.name, {}, function() {
+                    console.log(this.name + ' player is ready');
+                });
+            }
+        });
+
+        // Main Vue instance
+        new Vue({
+            el: '#app',
+            data: {
+                cameras: __CAMERAS_LIST__ // This will be replaced by start.sh
+            }
+        });
+    </script>
+</body>
+</html>

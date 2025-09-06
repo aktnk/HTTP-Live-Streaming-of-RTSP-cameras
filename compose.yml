@@ -1,40 +1,4 @@
 services:
-  camera_c200:
-    container_name: camera_c200
-    build: ./camera_c200
-    environment:
-      RTMP_SERVER_URL: "rtmp://nginx_rtmp:1935/livecam"
-      STREAM_NAME: c200
-    restart: always
-    #volumes:
-    #  - ./log/camera_c200/:/var/log/rtsp2rtmp/
-    healthcheck:
-      test: "pgrep -f ffmpeg || exit 1"
-      interval: 10s
-      timeout: 1s
-      retries: 1
-      start_period: 5s
-    depends_on:
-      - nginx_rtmp
-
-  camera_c110:
-    container_name: camera_c110
-    build: ./camera_c110
-    environment:
-      RTMP_SERVER_URL: "rtmp://nginx_rtmp:1935/livecam"
-      STREAM_NAME: c110
-    restart: always
-    #volumes:
-    #  - ./log/camera_c110/:/var/log/rtsp2rtmp/
-    healthcheck:
-      test: "pgrep -f ffmpeg || exit 1"
-      interval: 10s
-      timeout: 1s
-      retries: 1
-      start_period: 5s
-    depends_on:
-      - nginx_rtmp
-  
   nginx_rtmp:
     container_name: nginx_rtmp
     build: ./nginx_rtmp
@@ -46,7 +10,8 @@ services:
       - ./data:/usr/share/nginx/html
       - ./log/nginx_rtmp/:/var/log/nginx/
     healthcheck:
-      test: "(curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c110.m3u8 && curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c200.m3u8) || exit 1 "
+      #      test: "(curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c110.m3u8 && curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c200.m3u8) || exit 1 "
+      test: "curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c110.m3u8 || exit 1 "
       interval: 30s
       timeout: 5s
       retries: 2
@@ -59,4 +24,14 @@ services:
     restart: always
     volumes:
       - ./data:/usr/share/nginx/html
-  
+
+  cleanup:
+    container_name: cleanup
+    build: ./cleanup
+    environment:
+      # Max size for the recording directory in MB
+      MAX_SIZE_MB: 1024 # 1GB
+    volumes:
+      # Mount the recording directory to be monitored
+      - ./data/hls:/hls
+    restart: always
