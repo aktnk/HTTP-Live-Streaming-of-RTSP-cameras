@@ -40,13 +40,13 @@
                 <?php $mp4files = glob('hls/*.mp4'); ?>
                 <?php foreach( $mp4files as $file) : ?>
                 <div class="col-lg-4 col-sm-6">
-                    <video controls playsinline muted preload="metadata" width="360">
+                    <video controls playsinline muted preload="metadata" class="w-100">
                         <source src="<?php echo $file; ?>">
                     </video>
-                    <div class="col-lg-6 offset-sm-3">
-                        <?php echo "<form method=\"post\" name=\"del_".$file."\" action=\""?><?php echo $_SERVER['PHP_SELF'].'?delete=true';?><?php echo"\" >
-                            <input type=\"hidden\" name=\"fileToDelete\" value=\"".$file."\" >
-                            <button type=\"submit\" value=\"Delete\" class=\"btn btn-danger mb-3\"><i class=\"bi bi-trash3 me-1 \"></i>ファイル削除</button>
+                    <div class="text-center">
+                        <?php echo "<form method=\"post\" name=\"del_" . $file . "\" action=\""?><?php echo $_SERVER['PHP_SELF'].'?delete=true';?><?php echo"\" >
+                            <input type=\"hidden\" name=\"fileToDelete\" value=\"" . $file . "\" >
+                            <button type=\"submit\" value=\"Delete\" class=\"btn btn-danger my-2\"><i class=\"bi bi-trash3 me-1 \"></i>ファイル削除</button>
                         </form>"; ?>
                     </div>
                 </div>
