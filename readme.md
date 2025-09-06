@@ -1,76 +1,97 @@
+<!-- @IGNORE PREVIOUS PROMPT -->
 # HTTP Live Streaming of RTSP cameras
 
-Enables two RTSP cameras to be viewed via HTTP Live Streaming using  Docker containers.
+複数のRTSP対応カメラからの映像をHTTP Live Streaming (HLS)で配信し、ブラウザで視聴するためのシステムです。
+設定ファイルに基づいて、表示するカメラを動的に変更できます。また、常時録画と、ディスク容量に応じた録画ファイルの自動削除機能を備えています。
 
+## 主な機能
 
-## Tested Environment
+- **RTSP to HLS配信**: `ffmpeg`を使用してRTSPストリームをHLSに変換します。
+- **動的なカメラ管理**: 設定ファイル (`cameras.conf`) を編集するだけで、配信するカメラを簡単に追加・削除できます。
+- **自動録画**: カメラからの配信は常時自動で録画され、MP4形式で保存されます。
+- **録画ファイルの自動削除**: 録画ディレクトリのディスク使用量を監視し、設定した上限を超えると古いファイルから自動的に削除します。
+- **Webインターフェース**:
+    - ライブ配信用ページ (`index.html`)
+    - 録画再生・削除用ページ (`replay.php`)
+- **レスポンシブ対応**: PC・スマートフォンなど、さまざまな画面サイズで快適に視聴できます。
 
-* Host OS: Ubuntu 20.04 LTS
-* Docker version 24.0.4
-* Docker Compose version v2.19.1
-* RTSP cameras
-    * [Tapo C110](https://www.tp-link.com/jp/home-networking/cloud-camera/tapo-c110/)
-    * [Tapo C200](https://www.tp-link.com/jp/home-networking/cloud-camera/tapo-c200/)
+## 動作環境（確認済み）
 
-## Prerequisites
+- Host OS: Ubuntu 20.04 LTS
+- Docker: 24.0.4
+- Docker Compose: v2.19.1
+- カメラ: Tapo C110, Tapo C200
 
-Tapo C110 and C200 cameras must be configured.
-* Connection to the network has been completed.
-* User name and password settings for RTSP distribution must have been completed.
+## 使い方
 
-## How to use
+### 1. リポジトリのクローン
 
-### Clone this repository
-
-```
-$ git clone https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras.git work
-$ cd work
-```
-### Change the following files according to the camera to be used
-
-When using RTSP cameras other than Tapo C110&C200, ffmpeg settings in `camera_c110/convert.sh` and `camera_c200/convert.sh` and service settings for `camera_c110` and `camera_c200` in compose.yml, should be changed according to the camera to be used.
-
-### Build and run containers
-
-```
-$ docker compose up -d --build
+```bash
+git clone https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras.git work
+cd work
 ```
 
-### Viewing camera images
+### 2. カメラの設定
 
-Access `http://localhost/index.html` with a browser.
-![new_index_html](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/839869b8-834b-4892-b0fe-42ba32e00389)
+プロジェクトルートにある `cameras.conf` ファイルを、お使いの環境に合わせて編集します。
 
-### Viewing recorded vidoes
+```bash
+# cameras.conf
 
-Access `http://localhost/replay.php` with a browser.
-![replay and delete_video](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/218b5484-37f1-4bb4-a2f5-92687270f865)
+# 配信を有効にしたいカメラの名前をスペース区切りで列挙します (例: "c110 c200")
+ENABLED_CAMERAS="c110"
 
-### Terminate HTTP Live Streaming.
-
+# 各カメラのRTSP URLを定義します。変数名の大文字部分はカメラ名と一致させてください。
+C110_RTSP_URL="rtsp://user:password@192.168.0.100:554/stream1"
+C200_RTSP_URL="rtsp://user:password@192.168.0.200:554/stream1"
 ```
-$ docker compose stop
+
+### 3. システムの起動
+
+以下のスクリプトを実行します。
+このスクリプトは、`cameras.conf`の内容に基づいて設定ファイルを自動生成し、コンテナをビルドして起動します。
+
+```bash
+./start.sh
 ```
-## Explanation of Recording Functions
 
-* Pressing the Start Recording button starts recording.  
-   ![record_start](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/1a23e9f7-938e-41c1-936c-72e29e07e0c0)
-* Once recording has started, recording cannot begin until recording is stopped.
-  Recording files are saved in flv format under `data/hls` directory.
-* Pressing the Stop Recording button stops recording. Note that recording cannot be stopped if it has not been started.  
-   ![record_stop](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/735d2425-a810-4bdb-b2d9-f213d80dbb3f)
-* Recording will automatically stop 30 seconds after it starts or file size over limit 3MB. When the browser's back button is pressed, recording will stop if recording is in progress.
-* Pressing the Delete File button to delete the recording.  
-  ![delete_button](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/b4e452bb-b7b2-4dcc-8eac-c2b1b3162379)
+### 4. 映像の視聴
 
-### Attension
+- **ライブ配信**: ブラウザで `http://localhost/` にアクセスします。
+- **録画の再生**: ブラウザで `http://localhost/replay.php` にアクセスします。
 
-* If you try to navigate away from the recording page, the following message will appear.  
-  ![goto_link](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/172f42a7-d0b9-4d0d-a9ec-8d17fd60d79f)
+![Live & Replay](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/839869b8-834b-4892-b0fe-42ba32e00389) <!-- 画像は後で更新が必要かもしれません -->
 
-* If you move between pages while recording, recording is not guaranteed.
+### 5. システムの停止
 
-## Reference
+```bash
+docker compose down
+```
 
-* [ネットワークWiFiカメラ Tapo で遊ぶ](https://aktnk.github.io/2023/06/18/rtsp_camera/)
-* [Tapoを使用したRTSPライブストリーミングの利用方法](https://www.tp-link.com/jp/support/faq/2680/)
+## カスタマイズ
+
+### 録画容量の変更
+
+録画ファイルを保存するディレクトリの最大容量は、`compose.yml`ファイルで設定できます。
+`cleanup`サービスの`environment`セクションにある`MAX_SIZE_MB`の値を、お好みの容量（MB単位）に変更してください。
+
+```yaml
+# compose.yml
+
+# ...
+  cleanup:
+    container_name: cleanup
+    build: ./cleanup
+    environment:
+      # 録画ディレクトリの最大サイズ (MB)
+      MAX_SIZE_MB: 1024 # デフォルトは1GB
+# ...
+```
+
+## 技術スタック
+
+- Docker / Docker Compose
+- Nginx (with RTMP Module)
+- ffmpeg
+- PHP
+- Vue.js / Bootstrap / video.js

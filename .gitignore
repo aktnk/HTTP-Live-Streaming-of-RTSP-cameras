@@ -1,0 +1,29 @@
+# Docker
+# start.shによって動的に生成されるため無視
+docker-compose.override.yml
+
+# Logs
+# log/ ディレクトリの中身をすべて無視 (.gitkeepは除く)
+log/*
+!log/.gitkeep
+!log/nginx_rtmp/.gitkeep
+
+# Data
+# HLS配信データと録画ファイルを無視 (.gitkeepは除く)
+data/hls/*
+!data/hls/.gitkeep
+
+# start.shによって動的に生成されるため無視
+data/index.html
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+._*
+
+# Editor-specific files
+.vscode/
+.idea/
+*.swp
+GEMINI.md
+prompt*.txt
