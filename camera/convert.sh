@@ -1,11 +1,14 @@
 #!/bin/sh
 set -e
 
-# Check if RTSP_URL is set
-if [ -z "$RTSP_URL" ]; then
-    echo "Error: RTSP_URL environment variable not set." >&2
+# Check if required environment variables are set
+if [ -z "$RTSP_IP" ] || [ -z "$RTSP_PATH" ] || [ -z "$RTSP_USER" ] || [ -z "$RTSP_PASS" ]; then
+    echo "Error: RTSP_IP, RTSP_PATH, RTSP_USER, or RTSP_PASS environment variables not set." >&2
     exit 1
 fi
+
+# Construct the full RTSP URL
+RTSP_URL="rtsp://${RTSP_USER}:${RTSP_PASS}@${RTSP_IP}:554${RTSP_PATH}"
 
 # Check if RTMP_SERVER_URL and STREAM_NAME are set
 if [ -z "$RTMP_SERVER_URL" ] || [ -z "$STREAM_NAME" ]; then

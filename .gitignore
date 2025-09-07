@@ -1,3 +1,10 @@
+# .gitignore for HTTP Live Streaming of RTSP cameras project
+# Ignore files that are generated dynamically or contain sensitive information.
+
+# Environment variables file
+# Contains sensitive information like usernames and passwords
+.env
+
 # Docker
 # start.shによって動的に生成されるため無視
 docker-compose.override.yml

@@ -1,6 +1,16 @@
 #!/bin/sh
 set -e
 
+# Load environment variables from .env file
+if [ -f ./.env ]; then
+    set -a # Automatically export all variables
+    . ./.env
+    set +a # Turn off automatic export
+    echo "Loaded environment variables from .env"
+else
+    echo "Warning: .env file not found. Proceeding without it." >&2
+fi
+
 # Load camera configuration
 if [ ! -f cameras.conf ]; then
     echo "Error: cameras.conf not found." >&2
@@ -40,11 +50,14 @@ EOF
 for cam in $ENABLED_CAMERAS; do
     # Convert camera name to uppercase for variable lookup (e.g., c110 -> C110)
     cam_upper=$(echo "$cam" | tr 'a-z' 'A-Z')
-    var_name="${cam_upper}_RTSP_URL"
-    eval url=\$$var_name
 
-    if [ -z "$url" ]; then
-        echo "Warning: RTSP URL for $cam not found in cameras.conf. Skipping." >&2
+    # Get IP and Path from cameras.conf
+    eval rtsp_ip=\${${cam_upper}_RTSP_IP}
+    eval rtsp_path=\${${cam_upper}_RTSP_PATH}
+
+    if [ -z "$rtsp_ip" ] || [ -z "$rtsp_path" ]; then # Removed check for rtsp_user and rtsp_pass
+        echo "Warning: Incomplete RTSP IP/Path configuration for $cam. Skipping." >&2
+        echo "  IP: $rtsp_ip, Path: $rtsp_path" >&2
         continue
     fi
 
@@ -55,8 +68,11 @@ for cam in $ENABLED_CAMERAS; do
     build: ./camera
     environment:
       RTMP_SERVER_URL: "rtmp://nginx_rtmp:1935/livecam"
-      STREAM_NAME: "$cam"
-      RTSP_URL: "$url"
+      STREAM_NAME: $cam
+      RTSP_IP: $rtsp_ip
+      RTSP_PATH: $rtsp_path
+      RTSP_USER: \$${cam_upper}_RTSP_USER # Corrected: Docker Compose will resolve this from .env
+      RTSP_PASS: \$${cam_upper}_RTSP_PASSWORD # Corrected: Docker Compose will resolve this from .env
     restart: always
     depends_on:
       - nginx_rtmp
