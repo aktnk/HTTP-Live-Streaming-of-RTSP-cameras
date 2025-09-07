@@ -1,18 +1,19 @@
 <!-- @IGNORE PREVIOUS PROMPT -->
+
 # HTTP Live Streaming of RTSP cameras
 
-複数のRTSP対応カメラからの映像をHTTP Live Streaming (HLS)で配信し、ブラウザで視聴するためのシステムです。
+複数の RTSP 対応カメラからの映像を HTTP Live Streaming (HLS)で配信し、ブラウザで視聴するためのシステムです。
 設定ファイルに基づいて、表示するカメラを動的に変更できます。また、常時録画と、ディスク容量に応じた録画ファイルの自動削除機能を備えています。
 
 ## 主な機能
 
-- **RTSP to HLS配信**: `ffmpeg`を使用してRTSPストリームをHLSに変換します。
+- **RTSP to HLS 配信**: `ffmpeg`を使用して RTSP ストリームを HLS に変換します。
 - **動的なカメラ管理**: 設定ファイル (`cameras.conf`) を編集するだけで、配信するカメラを簡単に追加・削除できます。
-- **自動録画**: カメラからの配信は常時自動で録画され、MP4形式で保存されます。
+- **自動録画**: カメラからの配信は常時自動で録画され、MP4 形式で保存されます。
 - **録画ファイルの自動削除**: 録画ディレクトリのディスク使用量を監視し、設定した上限を超えると古いファイルから自動的に削除します。
-- **Webインターフェース**:
-    - ライブ配信用ページ (`index.html`)
-    - 録画再生・削除用ページ (`replay.php`)
+- **Web インターフェース**:
+  - ライブ配信用ページ (`index.html`)
+  - 録画再生・削除用ページ (`replay.php`)
 - **レスポンシブ対応**: PC・スマートフォンなど、さまざまな画面サイズで快適に視聴できます。
 
 ## 動作環境（確認済み）
@@ -41,15 +42,24 @@ cd work
 # 配信を有効にしたいカメラの名前をスペース区切りで列挙します (例: "c110 c200")
 ENABLED_CAMERAS="c110"
 
-# 各カメラのRTSP URLを定義します。変数名の大文字部分はカメラ名と一致させてください。
-C110_RTSP_URL="rtsp://user:password@192.168.0.100:554/stream1"
-C200_RTSP_URL="rtsp://user:password@192.168.0.200:554/stream1"
+# 各カメラのIPアドレス、RTSP配信パスを記載します
+C110_RTSP_IP="192.168.0.209"
+C110_RTSP_PATH="/stream2"
+```
+
+# .env
+
+# カメラの認証を行うユーザ名、パスワードを記載します
+
+```bash
+C110_RTSP_USER=your_c110_username
+C110_RTSP_PASSWORD=your_c110_password
 ```
 
 ### 3. システムの起動
 
 以下のスクリプトを実行します。
-このスクリプトは、`cameras.conf`の内容に基づいて設定ファイルを自動生成し、コンテナをビルドして起動します。
+このスクリプトは、`cameras.conf`と`.env`に基づいて設定ファイルを自動生成し、コンテナをビルドして起動します。
 
 ```bash
 ./start.sh
@@ -57,10 +67,10 @@ C200_RTSP_URL="rtsp://user:password@192.168.0.200:554/stream1"
 
 ### 4. 映像の視聴
 
-- **ライブ配信**: ブラウザで `http://localhost/` にアクセスします。
+- **ライブ配信**: ブラウザで `http://localhost/` にアクセスします
+  ![Live映像確認](./doc/index.png)
 - **録画の再生**: ブラウザで `http://localhost/replay.php` にアクセスします。
-
-![Live & Replay](https://github.com/aktnk/HTTP-Live-Streaming-of-RTSP-cameras/assets/13390370/839869b8-834b-4892-b0fe-42ba32e00389) <!-- 画像は後で更新が必要かもしれません -->
+  ![録画映像視聴](./doc/replay.png)
 
 ### 5. システムの停止
 
@@ -73,18 +83,18 @@ docker compose down
 ### 録画容量の変更
 
 録画ファイルを保存するディレクトリの最大容量は、`compose.yml`ファイルで設定できます。
-`cleanup`サービスの`environment`セクションにある`MAX_SIZE_MB`の値を、お好みの容量（MB単位）に変更してください。
+`cleanup`サービスの`environment`セクションにある`MAX_SIZE_MB`の値を、お好みの容量（MB 単位）に変更してください。
 
 ```yaml
 # compose.yml
 
 # ...
-  cleanup:
-    container_name: cleanup
-    build: ./cleanup
-    environment:
-      # 録画ディレクトリの最大サイズ (MB)
-      MAX_SIZE_MB: 1024 # デフォルトは1GB
+cleanup:
+  container_name: cleanup
+  build: ./cleanup
+  environment:
+    # 録画ディレクトリの最大サイズ (MB)
+    MAX_SIZE_MB: 1024 # デフォルトは1GB
 # ...
 ```
 
