@@ -13,6 +13,30 @@ OVERRIDE_FILE="docker-compose.override.yml"
 
 echo "services:" > "$OVERRIDE_FILE"
 
+# Construct the dynamic healthcheck test string for nginx_rtmp
+HEALTHCHECK_TEST=""
+first_cam=true
+for cam in $ENABLED_CAMERAS; do
+    if [ "$first_cam" = true ]; then
+        HEALTHCHECK_TEST="curl -s -S -o /dev/null -f http://nginx_rtmp/hls/${cam}.m3u8"
+        first_cam=false
+    else
+        HEALTHCHECK_TEST="${HEALTHCHECK_TEST} && curl -s -S -o /dev/null -f http://nginx_rtmp/hls/${cam}.m3u8"
+    fi
+done
+HEALTHCHECK_TEST="${HEALTHCHECK_TEST} || exit 1"
+
+# Add nginx_rtmp service with dynamic healthcheck to override file
+cat << EOF >> "$OVERRIDE_FILE"
+  nginx_rtmp:
+    healthcheck:
+      test: "${HEALTHCHECK_TEST}"
+      interval: 30s
+      timeout: 5s
+      retries: 2
+      start_period: 15s
+EOF
+
 for cam in $ENABLED_CAMERAS; do
     # Convert camera name to uppercase for variable lookup (e.g., c110 -> C110)
     cam_upper=$(echo "$cam" | tr 'a-z' 'A-Z')

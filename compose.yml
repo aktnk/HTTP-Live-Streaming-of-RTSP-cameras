@@ -9,13 +9,6 @@ services:
     volumes:
       - ./data:/usr/share/nginx/html
       - ./log/nginx_rtmp/:/var/log/nginx/
-    healthcheck:
-      #      test: "(curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c110.m3u8 && curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c200.m3u8) || exit 1 "
-      test: "curl -s -S -o /dev/null -f http://nginx_rtmp/hls/c110.m3u8 || exit 1 "
-      interval: 30s
-      timeout: 5s
-      retries: 2
-      start_period: 15s
     restart: always
 
   php_fpm:
@@ -30,7 +23,7 @@ services:
     build: ./cleanup
     environment:
       # Max size for the recording directory in MB
-      MAX_SIZE_MB: 1024 # 1GB
+      MAX_SIZE_MB: 256 # 1GB
     volumes:
       # Mount the recording directory to be monitored
       - ./data/hls:/hls
