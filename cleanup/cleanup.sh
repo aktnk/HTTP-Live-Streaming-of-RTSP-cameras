@@ -27,7 +27,7 @@ while true; do
     if [ "$current_size_mb" -gt "$MAX_SIZE_MB" ]; then
         echo "Max size exceeded. Cleaning up old files..."
         # Delete oldest files until the size is below the limit
-        while [ "$(du -sm \"$TARGET_DIR\" | cut -f1)" -gt "$MAX_SIZE_MB" ]; do
+        while [ "$(du -sm "$TARGET_DIR" | cut -f1)" -gt "$MAX_SIZE_MB" ]; do
             # Find the oldest .mp4 file
             oldest_file=$(ls -t "$TARGET_DIR"/*.mp4 2>/dev/null | tail -n 1)
 
